@@ -1,5 +1,5 @@
 defmodule Rockelivery.Users.Create do
-  alias Rockelivery.{User, Repo}
+  alias Rockelivery.{Repo, User}
 
   def call(params) do
     params
