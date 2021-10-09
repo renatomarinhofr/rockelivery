@@ -1,4 +1,4 @@
-defmodule Rocklivery.User do
+defmodule Rockelivery.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -7,6 +7,8 @@ defmodule Rocklivery.User do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   @required_params [:age, :address, :cep, :cpf, :email, :password, :name]
+
+  @derive {Jason.Encoder, only: [:age, :address, :cep, :cpf, :id, :email, :name]}
 
   schema "users" do
     field :age, :integer
@@ -21,17 +23,22 @@ defmodule Rocklivery.User do
     timestamps()
   end
 
-  def changeset(params) do
-    %__MODULE__{}
+  def build(params) do
+    params
+    |> changeset()
+    |> apply_action(:insert)
+  end
+
+  def changeset(changeset \\ %__MODULE__{}, params) do
+    changeset
     |> cast(params, @required_params)
     |> validate_required(@required_params)
-    |> validate_length(:password_hash, min: 6)
-    |> validate_length(:cep, min: 8)
-    |> validate_length(:cpf, min: 11)
+    |> validate_length(:password, min: 6)
+    |> validate_length(:cep, is: 8)
+    |> validate_length(:cpf, is: 11)
     |> validate_number(:age, greater_than_or_equal_to: 18)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint([:email])
-    |> unique_constraint([:cpf])
     |> put_password_hash()
   end
 
